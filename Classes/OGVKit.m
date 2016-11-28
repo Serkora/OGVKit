@@ -75,9 +75,11 @@
     @synchronized (decoderClasses) {
         for (Class<OGVDecoder> decoderClass in decoderClasses) {
             if ([decoderClass canPlayType:mediaType]) {
+//                NSLog(@"returning some decoder?");
                 return decoderClass;
             }
         }
+//        NSLog(@"no relevant decoder found");
         return nil;
     }
 }

@@ -322,7 +322,7 @@ static const NSUInteger kOGVInputStreamBufferSizeReading = 1024 * 1024;
         req.cachePolicy = NSURLRequestReloadIgnoringLocalCacheData;
 
         [req addValue:[self nextRange] forHTTPHeaderField:@"Range"];
-        NSLog(@"Range %lld: %@", (int64_t)rangeSize, [self nextRange]);
+//        NSLog(@"Range %lld: %@", (int64_t)rangeSize, [self nextRange]);
 
         // Allow caller to add custom HTTP headers etc
         if ([self.delegate respondsToSelector:@selector(OGVInputStream:customizeURLRequest:)]) {
@@ -382,7 +382,7 @@ static const NSUInteger kOGVInputStreamBufferSizeReading = 1024 * 1024;
                 waitingForDataSemaphore = dispatch_semaphore_create(0);
             }
 
-            NSLog(@"waiting: at %ld/%ld: have %ld, want %ld; done %d, state %d, rangeSize %d", (long)self.bytePosition, (long)(long)self.length, self.bytesAvailable, (long)nBytes, (int)doneDownloading, (int)self.state, (int)rangeSize);
+//            NSLog(@"waiting: at %ld/%ld: have %ld, want %ld; done %d, state %d, rangeSize %d", (long)self.bytePosition, (long)(long)self.length, self.bytesAvailable, (long)nBytes, (int)doneDownloading, (int)self.state, (int)rangeSize);
 
             dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC);
             dispatch_semaphore_wait(waitingForDataSemaphore,
@@ -401,7 +401,7 @@ static const NSUInteger kOGVInputStreamBufferSizeReading = 1024 * 1024;
                 self.state == OGVInputStreamStateCanceled) {
 
                 if (tries) {
-                    NSLog(@"data received; continuing!");
+//                    NSLog(@"data received; continuing!");
                 }
                 return YES;
             }
@@ -578,7 +578,7 @@ static const NSUInteger kOGVInputStreamBufferSizeReading = 1024 * 1024;
                 connection = nil;
             }
 
-            NSLog(@"RESPONSE %d RECEIVED (%d available)", statusCode, (int)self.bytesAvailable);
+//            NSLog(@"RESPONSE %d RECEIVED (%d available)", statusCode, (int)self.bytesAvailable);
             if (waitingForDataSemaphore) {
                 dispatch_semaphore_signal(waitingForDataSemaphore);
             }

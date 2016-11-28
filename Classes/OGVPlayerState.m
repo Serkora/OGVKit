@@ -79,8 +79,10 @@
         if (playing) {
             // Already playing
         } else if (decoder.dataReady) {
+//            NSLog(@"decoder.dataReady");
             [self startPlayback:decoder.hasAudio ? initialAudioTimestamp : frameEndTimestamp];
         } else {
+//            NSLog(@"setting playAfterLoad");
             playAfterLoad = YES;
         }
     });
@@ -239,6 +241,7 @@
 
     playing = YES;
     if (decoder.hasAudio) {
+        NSLog(@"Starting audio");
         [self startAudio];
     }
     
@@ -283,6 +286,7 @@
 
 - (void)processHeaders
 {
+//    NSLog(@"OGVPlayerState entered processHeaders");
     BOOL ok = [decoder process];
     if (ok) {
         if (decoder.dataReady) {
@@ -305,13 +309,20 @@
 
 - (void)processNextFrame
 {
+//    NSLog(@"OGVPlayerState entered processNextFrame");
     BOOL more;
     if (!playing) {
+//        NSLog(@"OGVPlayerState not playing, returning form processNextFrame");
         return;
     }
     while (true) {
+//        NSLog(@"OGVPlayerState processing next frame");
+        NSDate *decodeStart = [[NSDate alloc] init];
         more = [decoder process];
+//        NSLog(@"Time spent in decoder process: %f ms", -([decodeStart timeIntervalSinceNow] * 1000));
+//        NSLog(@"more = %d", more);
         if (!more) {
+//            NSLog(@"more is false");
             if (decoder.inputStream.state == OGVInputStreamStateFailed) {
                 NSLog(@"Hey! The input stream failed. Handle this more gracefully.");
                 [self pause];
@@ -321,8 +332,10 @@
             
             if ((!decoder.hasAudio || decoder.audioReady) && (!decoder.hasVideo || decoder.frameReady)) {
                 // More packets already demuxed, just keep running them.
+                NSLog(@"More packets already demuxed, just keep running them.");
             } else {
                 // Wait for audio to run out, then close up shop!
+                NSLog(@"Wait for audio to run out, then close up shop!");
                 float timeLeft;
                 if (audioFeeder) {
                     timeLeft = [audioFeeder timeAwaitingPlayback];
@@ -355,11 +368,13 @@
         const float fudgeDelta = 0.1f;
         float playbackPosition = self.playbackPosition;
         float frameDelay = (frameEndTimestamp - playbackPosition);
+//        NSLog(@"frameDelay = %f", frameDelay);
         
         // See if the frame timestamp is behind the playhead
         BOOL readyToDecodeFrame = (frameDelay <= 0.0);
         BOOL readyToDrawFrame = (fabsf(frameDelay) <= fudgeDelta);
         
+//        NSDate *startAudio = [[NSDate alloc] init];
         if (decoder.hasAudio) {
             // Drive on the audio clock!
             const int bufferSize = 8192;
@@ -390,10 +405,12 @@
                 // @todo revisit this checkin frequency, it's pretty made up
             }
         }
+//        float spentInAudio = -[startAudio timeIntervalSinceNow];
+//        NSLog(@"Spent decoding audio: %f", spentInAudio);
         
         if (decoder.hasVideo) {
             if (readyToDecodeFrame && decoder.frameReady) {
-                //NSLog(@"%f ms frame delay", frameDelay * 1000);
+//                NSLog(@"%f ms frame delay", frameDelay * 1000);
                 BOOL ok = [decoder decodeFrame];
                 if (ok) {
                     // Check if it's time to draw (AKA the frame timestamp is at or past the playhead)
@@ -402,11 +419,18 @@
                         [self drawFrame];
                         
                         // End the processing loop, we'll ping again after drawing
+//                        NSLog(@"End the processing loop, we'll ping again after drawing");
                         return;
                     } else {
                         // Not ready to draw yet, update the timestamp and keep on chuggin
                         OGVVideoBuffer *buffer = [decoder frameBuffer];
                         frameEndTimestamp = buffer.timestamp;
+//                        NSLog(@"Not ready to draw yet, update the timestamp and keep on chuggin");
+//                        float delay = frameEndTimestamp - self.playbackPosition;
+//                        delay = frameDelay;
+//                        [self pingProcessing:delay];
+//                        NSLog(@"Not ready to draw yet, frameDelay = %f ms, pinging processing in %f ms", frameDelay * 1000, delay * 1000);
+//                        return;
                         continue;
                     }
                 } else {
@@ -418,21 +442,35 @@
                 return;
             } else {
                 // Need more processing; continue the loop
-                continue;
+//                NSLog(@"Need more processing; continue the loop");
+                if (!decoder.hasAudio) {
+                    float delay = [decoder frameBuffer].timestamp - self.playbackPosition;
+//                    delay = 1.0f/100;
+                    delay = MAX(frameDelay / 2.0f, 0);
+//                    NSLog(@"not ready to decode frame, pinging in %f ms", delay * 1000);
+                    [self pingProcessing:delay];
+                    return;
+                } else {
+                    continue;
+                }
             }
         }
         
+        NSLog(@"end of nextFrame");
+        
         if (nextDelay < INFINITY) {
             [self pingProcessing:nextDelay];
-            
+            NSLog(@"nextDelay < INFINITY, End the processing loop and wait for next ping.");
             // End the processing loop and wait for next ping.
             return;
         } else {
             // Continue the processing loop...
+            NSLog(@"Continue the processing loop...");
             continue;
         }
         
         // End the processing loop and wait for next ping.
+        NSLog(@"End the processing loop and wait for next ping.");
         return;
     }
 }
@@ -452,13 +490,19 @@
  */
 -(void)drawFrame
 {
+//    NSLog(@"drawFrame called");
     OGVVideoBuffer *buffer = [decoder frameBuffer];
+//    NSLog(@"before update frame: %f %f", frameEndTimestamp, self.playbackPosition);
     frameEndTimestamp = buffer.timestamp;
-    //NSLog(@"frame: %f %f", frameEndTimestamp, self.playbackPosition);
+//    NSLog(@"after update frame: %f %f", frameEndTimestamp, self.playbackPosition);
+    float delay = frameEndTimestamp - self.playbackPosition;
+//    delay = 1.0f/30;
+    delay = 0;
     dispatch_async(drawingQueue, ^() {
         if (decoder) {
             [delegate ogvPlayerState:self drawFrame:buffer];
-            [self pingProcessing:0];
+//            NSLog(@"calling pingProcessing in %f ms", delay * 1000);
+            [self pingProcessing:delay];
         }
     });
 }

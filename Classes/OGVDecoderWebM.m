@@ -164,12 +164,13 @@ static int64_t tellCallback(void * userdata)
 
 -(BOOL)processBegin
 {
+//    NSLog(@"OGVDecoderWebM processBegin");
     if (nestegg_init(&demuxContext, ioCallbacks, logCallback, -1) < 0) {
         NSLog(@"nestegg_init failed");
         return NO;
     }
     
-    // Look through the tracks finding our video and audio
+    // Look through the tracks finding our vid eo and audio
     BOOL hasVideo = NO;
     BOOL hasAudio = NO;
     unsigned int tracks;
@@ -179,10 +180,11 @@ static int64_t tellCallback(void * userdata)
     for (unsigned int track = 0; track < tracks; track++) {
         int trackType = nestegg_track_type(demuxContext, track);
         int codec = nestegg_track_codec_id(demuxContext, track);
+//        NSLog(@"track %d, trackType = %d, codec = %d", track, trackType, codec);
         
         if (trackType == NESTEGG_TRACK_VIDEO && !hasVideo) {
 #ifdef OGVKIT_HAVE_VP8_DECODER
-            if (codec == NESTEGG_CODEC_VP8 /* || codec == NESTEGG_CODEC_VP9 */) {
+            if (codec == NESTEGG_CODEC_VP8 || codec == NESTEGG_CODEC_VP9) {
                 hasVideo = YES;
                 videoTrack = track;
                 videoCodec = codec;
@@ -192,7 +194,7 @@ static int64_t tellCallback(void * userdata)
         
         if (trackType == NESTEGG_TRACK_AUDIO && !hasAudio) {
 #ifdef OGVKIT_HAVE_VORBIS_DECODER
-            if (codec == NESTEGG_CODEC_VORBIS /* || codec == NESTEGG_CODEC_OPUS */) {
+            if (codec == NESTEGG_CODEC_VORBIS) {//|| codec == NESTEGG_CODEC_OPUS) {
                 hasAudio = YES;
                 audioTrack = track;
                 audioCodec = codec;
@@ -201,10 +203,13 @@ static int64_t tellCallback(void * userdata)
         }
     }
     
+//    NSLog(@"checking if video found");
     if (hasVideo) {
+//        NSLog(@"has video");
         nestegg_video_params videoParams;
         if (nestegg_track_video_params(demuxContext, videoTrack, &videoParams) < 0) {
             // failed! something is wrong...
+            NSLog(@"nestegg_track_video_params < 0");
             return NO;
         } else {
 #ifdef OGVKIT_HAVE_VP8_DECODER
@@ -227,14 +232,17 @@ static int64_t tellCallback(void * userdata)
         }
     }
     
+//    NSLog(@"checking if audio found");
     if (hasAudio) {
+//        NSLog(@"has audio");
         nestegg_audio_params audioParams;
         if (nestegg_track_audio_params(demuxContext, audioTrack, &audioParams) < 0) {
             // failed! something is wrong
+            NSLog(@"nestegg_track_audio_params < 0");
             return NO;
         } else {
 #ifdef OGVKIT_HAVE_VORBIS_DECODER
-            if (audioCodec == NESTEGG_CODEC_VORBIS) {
+            if (audioCodec == NESTEGG_CODEC_VORBIS) {//|| audioCodec == NESTEGG_CODEC_OPUS) {
                 unsigned int codecDataCount;
                 nestegg_track_codec_data_count(demuxContext, audioTrack, &codecDataCount);
 
@@ -287,14 +295,19 @@ static int64_t tellCallback(void * userdata)
 
 -(BOOL)processDecoding
 {
+//    NSLog(@"processDecoding called");
     BOOL needData = NO;
     
     if (self.hasVideo && !self.frameReady) {
         needData = YES;
+    } else {
+//        NSLog(@"frame is ready, not queueing anything");
     }
 
     if (self.hasAudio && !self.audioReady) {
         needData = YES;
+    } else {
+//        NSLog(@"audio is ready, not queueing anything");
     }
 
     if (needData) {
@@ -312,13 +325,17 @@ static int64_t tellCallback(void * userdata)
             nestegg_packet_track(packet.nesteggPacket, &track);
 
             if (self.hasVideo && track == videoTrack) {
+//                NSLog(@"video packet");
                 [videoPackets queue:packet];
             } else if (self.hasAudio && track == audioTrack) {
+//                NSLog(@"audio packet");
                 [audioPackets queue:packet];
             } else {
                 // throw away unknown packets
             }
         }
+    } else {
+//        NSLog(@"don't need data");
     }
     
     return YES;
@@ -326,6 +343,8 @@ static int64_t tellCallback(void * userdata)
 
 -(BOOL)decodeFrame
 {
+//    NSLog(@"processing frame");
+//    NSDate *start = NSDate();
     OGVDecoderWebMPacket *packet = [videoPackets dequeue];
     
     if (packet) {
@@ -388,12 +407,12 @@ static int64_t tellCallback(void * userdata)
         
         return YES;
     }
-
     return NO;
 }
 
 -(BOOL)decodeAudio
 {
+//    NSLog(@"OGVDecoderWebM decodeAudio entered");
     BOOL foundSome = NO;
     
     OGVDecoderWebMPacket *packet = [audioPackets dequeue];

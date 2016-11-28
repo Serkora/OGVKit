@@ -35,51 +35,81 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    NSURL *localBase = [NSURL URLWithString:@"http://192.168.1.5:9008/"];
+    
+    // https://2ch.hk/media/src/71098/14764575004940.webm
+    NSURL *vp8_vorbis = [NSURL URLWithString:@"2ch_vp8_vorbis.webm" relativeToURL:localBase];
+    NSURL *vp8_vorbis_remote = [NSURL URLWithString:@"https://2ch.hk/media/src/71098/14764575004940.webm"];
+    
+    // https://2ch.hk/media/src/71098/14799545283670.webm
+    NSURL *vp9_vorbis = [NSURL URLWithString:@"2ch_vp9_vorbis.webm" relativeToURL:localBase];
+    NSURL *vp9_vorbis_remote = [NSURL URLWithString:@"https://2ch.hk/media/src/71098/14799545283670.webm"];
+    
+    // https://2ch.hk/media/src/71098/14764539229730.webm
+    NSURL *vp9_opus = [NSURL URLWithString:@"2ch_vp9_opus.webm" relativeToURL:localBase];
+    NSURL *vp9_opus_remote = [NSURL URLWithString:@"https://2ch.hk/media/src/71098/14764539229730.webm"];
 
+    
     sources = @[
                 // Wikipedia stuff
                 [[OGVCommonsExampleItem alloc] initWithTitle:@"Wikipedia VisualEditor"
                                                     filename:@"Sneak Preview - Wikipedia VisualEditor.webm"],
-                [[OGVCommonsExampleItem alloc] initWithTitle:@"¿Qué es Wikipedia?"
-                                                    filename:@"¿Qué es Wikipedia?.ogv"],
-
-                // Third-party stuff
-                [[OGVCommonsExampleItem alloc] initWithTitle:@"Open Access: Empowering Discovery"
-                                                    filename:@"How_Open_Access_Empowered_a_16-Year-Old_to_Make_Cancer_Breakthrough.ogv"],
-                [[OGVCommonsExampleItem alloc] initWithTitle:@"Curiosity's Seven Minutes of Terror"
-                                                    filename:@"Curiosity's Seven Minutes of Terror.ogv"],
-                [[OGVCommonsExampleItem alloc] initWithTitle:@"Alaskan Huskies (heavy motion)"
-                                                    filename:@"Alaskan_Huskies_-_Sled_Dogs_-_Ivalo_2013.ogv"],
-
-                // Blender open movies
-                [[OGVCommonsExampleItem alloc] initWithTitle:@"Tears of Steel (sci-fi)"
-                                                    filename:@"Tears_of_Steel_1080p.webm"],
-                [[OGVCommonsExampleItem alloc] initWithTitle:@"Sintel (animation)"
-                                                    filename:@"Sintel_movie_4K.webm"],
-                [[OGVCommonsExampleItem alloc] initWithTitle:@"Caminandes - Llama Drama (animation)"
-                                                    filename:@"Caminandes- Llama Drama - Short Movie.ogv"],
-                [[OGVCommonsExampleItem alloc] initWithTitle:@"Caminandes - Gran Dillama (animation)"
-                                                    filename:@"Caminandes - Gran Dillama - Blender Foundation's new Open Movie.webm"],
-
-                // High frame rate
-                [[OGVCommonsExampleItem alloc] initWithTitle:@"Big Buck Bunny (60fps animation)"
-                                                    filename:@"Big_Buck_Bunny_4K.webm"],
-                [[OGVCommonsExampleItem alloc] initWithTitle:@"Wiki Makes Video (60fps)"
-                                                    filename:@"Wiki Makes Video Intro 4 26.webm"],
-
-                // Video-only tests
-                [[OGVCommonsExampleItem alloc] initWithTitle:@"Myopa (video only)"
-                                                    filename:@"Myopa_-_2015-05-02.webm"],
-
-                // Audio-only tests
-                [[OGVCommonsExampleItem alloc] initWithTitle:@"Bach C Major (audio)"
-                                                    filename:@"Bach_C_Major_Prelude_Werckmeister.ogg"],
-                [[OGVCommonsExampleItem alloc] initWithTitle:@"Arigato (short audio)"
-                                                    filename:@"Ja-arigato.oga"],
+//                [[OGVCommonsExampleItem alloc] initWithTitle:@"¿Qué es Wikipedia?"
+//                                                    filename:@"¿Qué es Wikipedia?.ogv"],
                 
-                // Local test files
-                [[OGVLinkedExampleItem alloc] initWithTitle:@"Res switching (local)"
-                                                        URL:[NSURL URLWithString:@"https://github.com/brion/OGVKit/raw/master/Example/Samples/vp8-res-switch.webm"]]
+                // 2ch VP8/9 tests
+                [[OGVLinkedExampleItem alloc] initWithTitle:@"local 2ch_vp8_vorbis"
+                    URL:vp8_vorbis],
+                [[OGVLinkedExampleItem alloc] initWithTitle:@"local 2ch_vp9_vorbis"
+                                                        URL:vp9_vorbis],
+                [[OGVLinkedExampleItem alloc] initWithTitle:@"local 2ch_vp9_opus"
+                                                        URL:vp9_opus],
+                
+                [[OGVLinkedExampleItem alloc] initWithTitle:@"remote 2ch_vp8_vorbis"
+                                                        URL:vp8_vorbis_remote],
+                [[OGVLinkedExampleItem alloc] initWithTitle:@"remote 2ch_vp9_vorbis"
+                                                        URL:vp9_vorbis_remote],
+                [[OGVLinkedExampleItem alloc] initWithTitle:@"remote 2ch_vp9_opus"
+                                                        URL:vp9_opus_remote],
+                
+                
+                // Third-party stuff
+//                [[OGVCommonsExampleItem alloc] initWithTitle:@"Open Access: Empowering Discovery"
+//                                                    filename:@"How_Open_Access_Empowered_a_16-Year-Old_to_Make_Cancer_Breakthrough.ogv"],
+//                [[OGVCommonsExampleItem alloc] initWithTitle:@"Curiosity's Seven Minutes of Terror"
+//                                                    filename:@"Curiosity's Seven Minutes of Terror.ogv"],
+//                [[OGVCommonsExampleItem alloc] initWithTitle:@"Alaskan Huskies (heavy motion)"
+//                                                    filename:@"Alaskan_Huskies_-_Sled_Dogs_-_Ivalo_2013.ogv"],
+//
+//                // Blender open movies
+//                [[OGVCommonsExampleItem alloc] initWithTitle:@"Tears of Steel (sci-fi)"
+//                                                    filename:@"Tears_of_Steel_1080p.webm"],
+//                [[OGVCommonsExampleItem alloc] initWithTitle:@"Sintel (animation)"
+//                                                    filename:@"Sintel_movie_4K.webm"],
+//                [[OGVCommonsExampleItem alloc] initWithTitle:@"Caminandes - Llama Drama (animation)"
+//                                                    filename:@"Caminandes- Llama Drama - Short Movie.ogv"],
+//                [[OGVCommonsExampleItem alloc] initWithTitle:@"Caminandes - Gran Dillama (animation)"
+//                                                    filename:@"Caminandes - Gran Dillama - Blender Foundation's new Open Movie.webm"],
+//
+//                // High frame rate
+//                [[OGVCommonsExampleItem alloc] initWithTitle:@"Big Buck Bunny (60fps animation)"
+//                                                    filename:@"Big_Buck_Bunny_4K.webm"],
+//                [[OGVCommonsExampleItem alloc] initWithTitle:@"Wiki Makes Video (60fps)"
+//                                                    filename:@"Wiki Makes Video Intro 4 26.webm"],
+//
+//                // Video-only tests
+//                [[OGVCommonsExampleItem alloc] initWithTitle:@"Myopa (video only)"
+//                                                    filename:@"Myopa_-_2015-05-02.webm"],
+//
+//                // Audio-only tests
+//                [[OGVCommonsExampleItem alloc] initWithTitle:@"Bach C Major (audio)"
+//                                                    filename:@"Bach_C_Major_Prelude_Werckmeister.ogg"],
+//                [[OGVCommonsExampleItem alloc] initWithTitle:@"Arigato (short audio)"
+//                                                    filename:@"Ja-arigato.oga"],
+//                
+//                // Local test files
+//                [[OGVLinkedExampleItem alloc] initWithTitle:@"Res switching (local)"
+//                                                        URL:[NSURL URLWithString:@"https://github.com/brion/OGVKit/raw/master/Example/Samples/vp8-res-switch.webm"]]
             ];
 
     [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"generic"];
@@ -217,9 +247,11 @@
 - (void)tableView:(UITableView *)tableView
 didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (source) {
-        source.playbackPosition = self.player.playbackPosition;
-    }
+//    if (source) {
+//        source.playbackPosition = self.player.playbackPosition;
+//    }
+    NSLog(@"\n\n Video changed");
+    source.playbackPosition = 0;
     [self selectSource:indexPath.item];
 }
 

@@ -1,4 +1,4 @@
-Pod::Spec.new do |s|
+ Pod::Spec.new do |s|
   s.name         = "OGVKit"
   s.version      = "0.5pre"
   s.summary      = "Ogg Vorbis/Theora and WebM media playback widget for iOS."

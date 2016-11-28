@@ -51,6 +51,7 @@ static BOOL OGVPlayerViewDidRegisterIconFont = NO;
 
 -(instancetype)initWithFrame:(CGRect)frame
 {
+    NSLog(@"initWithFrame");
     self = [super initWithFrame:frame];
     if (self) {
         [self setup];
@@ -69,11 +70,13 @@ static BOOL OGVPlayerViewDidRegisterIconFont = NO;
 
 - (NSURL *)sourceURL
 {
+//    NSLog(@"sourceURL");
     return _sourceURL;
 }
 
 - (void)setSourceURL:(NSURL *)sourceURL
 {
+//    NSLog(@"setSourceURL");
     if (state) {
         [state cancel];
         [self.frameView clearFrame];
@@ -88,6 +91,7 @@ static BOOL OGVPlayerViewDidRegisterIconFont = NO;
 
 -(void)play
 {
+//    NSLog(@"play");
     [state play];
 }
 
@@ -195,6 +199,7 @@ static BOOL OGVPlayerViewDidRegisterIconFont = NO;
 
 - (IBAction)togglePausePlay:(id)sender
 {
+//    NSLog(@"togglePausePlay");
     if (state) {
         if (state.paused) {
             [state play];
